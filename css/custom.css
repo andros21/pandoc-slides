@@ -1,0 +1,56 @@
+/* **custom.css** */
+
+/* add water-mark to background */
+.backgrounds {
+   background-position: bottom -100px left -100px;
+   background-repeat: no-repeat;
+   background-size: 25%;
+   opacity: 0.2;
+}
+
+/* override revealjs background */
+.reveal {
+   background-image: linear-gradient(to top, #c9dff3 0%, white 100%);
+}
+
+/* avoid revealjs capitalization for headers */
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  text-transform: none;
+}
+
+/* blockquote restyle */
+.reveal blockquote {
+   background-color: rgba(120, 171, 255, 0.07);
+   border-left: 0.5em #78abff solid;
+   font-size: 65%;
+   padding: 0% 5% 0% 5%;
+   width: fit-content;
+}
+
+/* figure caption restyle */
+figcaption {
+   font-size: 50%;
+   font-style: italic;
+}
+
+/* pre code restyle */
+.reveal pre {
+   background-color: #f6f4f5;
+   border-radius: 20px;
+   padding: 15px 20px 12px 22px;
+}
+
+/* disable div code margin */
+div.sourceCode {
+   margin: 0 0;
+}
+
+/* enable code scroll */
+.reveal .sourceCode {
+   overflow: scroll;
+}

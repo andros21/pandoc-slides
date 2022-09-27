@@ -1,0 +1,15 @@
+---
+
+# water-mark file name
+background-image: media/marks/usm.png
+
+title: "Slides title"
+subtitle: "Slides subtitle"
+
+author: "Author name"
+date: "Date"
+
+# html keywords metadata
+keywords: []
+
+...
