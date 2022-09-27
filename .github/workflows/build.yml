@@ -1,0 +1,35 @@
+---
+name: build pandoc-slides
+
+"on":
+  push:
+    branches:
+      - master
+    paths:
+      - apko/pandoc-slides.yaml
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    name: build pandoc-slides
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout project
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: apko snapshot
+        uses: distroless/actions/apko-snapshot@main
+        with:
+          config: apko/pandoc-slides.yaml
+          base-tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          target-tag: master
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
