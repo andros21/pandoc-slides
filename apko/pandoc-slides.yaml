@@ -1,0 +1,32 @@
+---
+contents:
+  repositories:
+    - https://dl-cdn.alpinelinux.org/alpine/edge/main
+    - https://dl-cdn.alpinelinux.org/alpine/edge/community
+    - https://dl-cdn.alpinelinux.org/alpine/v3.16/main
+    - https://dl-cdn.alpinelinux.org/alpine/v3.16/community
+  packages:
+    - ca-certificates-bundle
+    - curl
+    - font-noto
+    - git
+    - graphviz
+    - pandoc
+    - pango<1.50.10-r0
+    - plantuml<1.2022.6-r0
+    - py3-matplotlib
+    - py3-pip
+    - py3-six
+    - py3-wheel
+    - python3
+    - terminus-font
+    - ttf-dejavu
+
+environment:
+  PATH: /usr/sbin:/sbin:/usr/bin:/bin
+
+work-dir: /pandoc_slides
+cmd: /bin/sh -l
+
+archs:
+  - amd64
