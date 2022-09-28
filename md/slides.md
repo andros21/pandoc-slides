@@ -20,7 +20,7 @@ $$\rho(x)\propto e^{-kV(x)}$$
 
 ---
 
-```{.matplotlib im_fmt="svg" im_out="img" caption="Maxwell-Boltzmann distribution with elastic potential"}
+```{.matplotlib caption="Maxwell-Boltzmann distribution with elastic potential"}
 x = np.linspace(0, 10)
 
 fig, ax = plt.subplots()
@@ -57,8 +57,8 @@ ax.legend()
 
 Try to drawing a simple graph with [graphviz](https://graphviz.org)
 
-```{.graphviz im_fmt="svg" im_out="img" caption="This graph was
-created from a hand-made figure in an operating system paper"}
+```{.graphviz caption="This graph was created from a hand-made figure
+in an operating system paper"}
 graph G {
    bgcolor="transparent"
    fontname="Helvetica,Arial,sans-serif"
@@ -112,8 +112,7 @@ graph G {
 
 At the end let's try [plantuml]()
 
-```{.plantuml im_fmt="svg" im_out="img" width="150%" caption="Drawing
-a graph from yaml file"}
+```{.plantuml width="150%" caption="Drawing a graph from yaml file"}
 @startuml
 @startyaml
 !theme sketchy-outline

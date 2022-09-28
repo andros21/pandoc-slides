@@ -12,4 +12,8 @@ date: "Date"
 # html keywords metadata
 keywords: []
 
+# pandoc-filters imagine global
+imagine.im_fmt: svg
+imagine.im_out: img
+
 ...
