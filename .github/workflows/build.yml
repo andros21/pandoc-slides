@@ -5,6 +5,9 @@ name: build pandoc-slides
   push:
     branches:
       - master
+    paths:
+      - apko/pandoc-slides.Dockerfile
+      - apko/pandoc-slides.yaml
 
 env:
   REGISTRY: ghcr.io
