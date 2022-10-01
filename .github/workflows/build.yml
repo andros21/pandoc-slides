@@ -5,31 +5,114 @@ name: build pandoc-slides
   push:
     branches:
       - master
-    paths:
-      - apko/pandoc-slides.yaml
-
-permissions:
-  contents: read
-  id-token: write
-  packages: write
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build:
-    name: build pandoc-slides
+  changes:
+    name: filter changes
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      apko: ${{ steps.filter.outputs.apko }}
+      docker: ${{ steps.filter.outputs.docker }}
+    steps:
+      - name: checkout project
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - uses: dorny/paths-filter@b2feaf19c27470162a626bd6fa8438ae5b263721
+        id: filter
+        with:
+          filters: |
+            apko:
+              - 'apko/pandoc-slides.yaml'
+            docker:
+              - 'apko/pandoc-slides.Dockerfile'
+  apko:
+    name: build pandoc-slides-apko
+    needs: changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
     steps:
       - name: checkout project
         uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
       - name: apko snapshot
+        if: needs.changes.outputs.apko == 'true'
         uses: distroless/actions/apko-snapshot@main
         with:
           config: apko/pandoc-slides.yaml
           base-tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          target-tag: master
+          target-tag: master-apko
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+  docker:
+    name: build pandoc-slides
+    if: |
+      needs.changes.outputs.apko == 'true' || needs.changes.outputs.docker == 'true'
+    needs:
+      - changes
+      - apko
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    steps:
+      - name: checkout project
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b
+      - name: check cosign version
+        id: cosign-version
+        run: |
+          LATEST=$(curl -sL https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r ".tag_name")
+          echo "cosign version: ${LATEST}"
+          echo "##[set-output name=latest;]${LATEST}"
+      - name: check cosign cache
+        uses: actions/cache@fd5de65bc895cf536527842281bea11763fefd77
+        id: cosign-cache
+        with:
+          path: ~/.cosign
+          key: ${{ runner.os }}-cosign-${{ steps.cosign-version.outputs.latest }}
+      - name: add cosign to path
+        if: steps.cosign-cache.outputs.cache-hit == 'true'
+        run: |
+          echo "HOME=$HOME" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/.cosign" >> $GITHUB_ENV
+      - name: install cosign
+        if: steps.cosign-cache.outputs.cache-hit != 'true'
+        uses: sigstore/cosign-installer@ced07f21fb1da67979f539bbc6304c16c0677e76
+        with:
+          cosign-release: ${{ steps.cosign-version.outputs.latest }}
+      - name: verify apko base image
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign verify ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:master-apko | jq
+      - name: login ghcr.io
+        uses: docker/login-action@49ed152c8eca782a232dede0303416e8f356c37b
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: extract metadata
+        id: meta
+        uses: docker/metadata-action@69f6fc9d46f2f8bf0d5491e4aabe0bb8c6a4678a
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: build-and-push pandoc-slides
+        uses: docker/build-push-action@c84f38281176d4c9cdb1626ffafcd6b3911b5d94
+        with:
+          file: apko/pandoc-slides.Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: cosign pandoc-slides
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:master
