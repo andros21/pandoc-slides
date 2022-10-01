@@ -1,4 +1,9 @@
-?/
+# generated files
 pd-images/
 index.html
 slides.pid
+
+# cache files
+?/
+.cache/
+.java/
