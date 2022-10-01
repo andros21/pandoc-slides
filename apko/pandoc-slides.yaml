@@ -1,3 +1,8 @@
+# pandoc-slides.yaml
+# ==================
+# pandoc-slides apko base image
+# -----------------------------
+
 ---
 contents:
   repositories:
@@ -16,17 +21,28 @@ contents:
     - plantuml<1.2022.6-r0
     - py3-matplotlib
     - py3-pip
-    - py3-six
-    - py3-wheel
-    - python3
     - terminus-font
     - ttf-dejavu
 
 environment:
   PATH: /usr/sbin:/sbin:/usr/bin:/bin
+  JAVA_TRIGGER_URL: |
+    https://git.alpinelinux.org/aports/plain/community/java-common/java-common.trigger
+  PANDOC_FILTERS_REPO: https://github.com/jgm/pandocfilters.git
+  PANDOC_FILTERS_VERSION: 1beda668a764c8aa8e1c4e0cebce4323d4181f92
+  PANDOC_IMAGINE_REPO: https://github.com/andros21/imagine
+  PANDOC_IMAGINE_VERSION: 1524710a663294c3ee82aebb8a4ab9bef1e4d4f4
 
 work-dir: /pandoc_slides
-cmd: /bin/sh -l
+
+accounts:
+  groups:
+    - groupname: nonroot
+      gid: 65532
+  users:
+    - username: nonroot
+      uid: 65532
+  run-as: 0
 
 archs:
   - amd64
