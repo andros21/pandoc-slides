@@ -76,7 +76,7 @@ jobs:
           echo "cosign version: ${LATEST}"
           echo "##[set-output name=latest;]${LATEST}"
       - name: check cosign cache
-        uses: actions/cache@56461b9eb0f8438fd15c7a9968e3c9ebb18ceff1
+        uses: actions/cache@9b0c1fce7a93df8e3bb8926b0d6e9d89e92f20a7
         id: cosign-cache
         with:
           path: ~/.cosign
