@@ -43,6 +43,3 @@ accounts:
     - username: nonroot
       uid: 65532
   run-as: 0
-
-archs:
-  - amd64
