@@ -7,12 +7,16 @@ A Template for RevealJS Slides written in Markdown
 
 ### Prerequisites
 
-* Container engine
+* container engine
     * [`docker`](https://www.docker.com/) - most popular container engine
     * [`podman`](https://podman.io/) - a daemonless container engine
 * [`make`](https://www.gnu.org/s/make/manual/make.html) command - build automation tool
 
-> **Warning:** `pandoc-slides` image is (at the moment) available only for `x86_64` architecture
+> **Warning:** supported platforms
+>  * `aarch64-unknown-linux`
+>  * `x86_64-unknown-linux`
+>  * `aarch64-apple-darwin`
+>  * `x86_64-apple-darwin`
 
 ### Usage
 
