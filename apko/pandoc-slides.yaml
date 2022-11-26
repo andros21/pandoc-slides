@@ -6,10 +6,8 @@
 ---
 contents:
   repositories:
-    - https://dl-cdn.alpinelinux.org/alpine/edge/main
-    - https://dl-cdn.alpinelinux.org/alpine/edge/community
-    - https://dl-cdn.alpinelinux.org/alpine/v3.16/main
-    - https://dl-cdn.alpinelinux.org/alpine/v3.16/community
+    - https://dl-cdn.alpinelinux.org/alpine/v3.17/main
+    - https://dl-cdn.alpinelinux.org/alpine/v3.17/community
   packages:
     - ca-certificates-bundle
     - curl
@@ -17,8 +15,7 @@ contents:
     - git
     - graphviz
     - pandoc
-    - pango<1.50.10-r0
-    - plantuml<1.2022.6-r0
+    - plantuml
     - py3-matplotlib
     - py3-pip
     - terminus-font
@@ -27,11 +24,11 @@ contents:
 environment:
   PATH: /usr/sbin:/sbin:/usr/bin:/bin
   JAVA_TRIGGER_URL: |
-    https://git.alpinelinux.org/aports/plain/community/java-common/java-common.trigger
+    https://git.alpinelinux.org/aports/plain/community/java-common/java-common.trigger?h=3.17-stable
   PANDOC_FILTERS_REPO: https://github.com/jgm/pandocfilters.git
   PANDOC_FILTERS_VERSION: 1beda668a764c8aa8e1c4e0cebce4323d4181f92
   PANDOC_IMAGINE_REPO: https://github.com/andros21/imagine
-  PANDOC_IMAGINE_VERSION: 1524710a663294c3ee82aebb8a4ab9bef1e4d4f4
+  PANDOC_IMAGINE_VERSION: cc96d54ff4df119182d60e0b51eb86ab9b5866b0
 
 work-dir: /pandoc_slides
 
