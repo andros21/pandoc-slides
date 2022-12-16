@@ -1,5 +1,5 @@
 <h1> pandoc-slides <a href="https://github.com/andros21/pandoc-slides/actions/workflows/build.yml">
-    <img src="https://img.shields.io/github/workflow/status/andros21/pandoc-slides/build%20pandoc-slides/master?label=build&logo=github" alt="build">
+    <img src="https://img.shields.io/github/actions/workflow/status/andros21/pandoc-slides/build.yml?branch=master&label=build&logo=github" alt="build">
 </a>
 </h1>
 
