@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
       - name: apko snapshot
         if: needs.changes.outputs.apko == 'true'
-        uses: distroless/actions/apko-snapshot@main
+        uses: chainguard-images/actions/apko-snapshot@main
         with:
           config: apko/pandoc-slides.yaml
           base-tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
