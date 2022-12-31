@@ -85,6 +85,8 @@ make: containerstart ${TARGET}
 ## Preview slides
 http: slides.pid
 
+example: containerstart example.html
+
 ## Create "pandoc-slides" container with pandoc
 container:
 	$(CE) create \
@@ -103,6 +105,12 @@ container:
 ## Build slides
 ${TARGET}: $(SRC) $(META) $(CSS)
 	$(PANDOC) ${OPTIONS} -o $@ $(SRC)
+
+## Build example
+SRC_EXAMPLE=example/slides.md
+META_EXAMPLE=example/metadata.yaml
+example.html: $(SRC_EXAMPLE) $(META_EXAMPLE) $(CSS)
+	$(PANDOC) ${OPTIONS} --metadata-file $(META_EXAMPLE) -o $@ $(SRC_EXAMPLE)
 
 slides.pid:
 	@printf "Starting http.server ... "

@@ -50,7 +50,7 @@ Inside markdown source is possible to insert code-blocks of these available tool
 
 thanks to [`pandocfilters`](https://github.com/jgm/pandocfilters) and [`imagine`](https://github.com/andros21/imagine) are rendered as image inside final html
 
-> **Hint:** there is a special section inside [`md/slides.md`](md/slides.md)\
+> **Hint:** there is a special section inside [`example/slides.md`](example/slides.md)\
 > for better understanding how it work and how to use it
 
 > **Note:** `imagine` global configuration inside [`metadata.yaml`](metadata.yaml) or\

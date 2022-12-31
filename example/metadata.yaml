@@ -1,0 +1,19 @@
+---
+
+# water-mark file name
+background-image: media/marks/usm.png
+
+title: "pandoc-slides"
+subtitle: "A Template for RevealJS Slides written in Markdown"
+
+author: "[@andros21](https://github.com/andros21)"
+date: ""
+
+# html keywords metadata
+keywords: []
+
+# pandoc-filters imagine global
+imagine.im_fmt: svg
+imagine.im_out: img
+
+...
