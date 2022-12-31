@@ -6,6 +6,9 @@
 ## Verify its signature before run `make container` ;)
 OCI ?= ghcr.io/andros21/pandoc-slides:latest
 
+## Container name (from working dir)
+CN := $(shell basename $$PWD)
+
 ## Container engine to use
 ## Choose between docker or podman (rootless)
 ## (Defaults to docker)
@@ -43,7 +46,7 @@ endif
 ## (Defaults to docker/podman. To use pandoc directly, create an
 ## environment variable `PANDOC` pointing to the location of your
 ## pandoc installation.)
-PANDOC ?= $(CE) exec pandoc-slides pandoc
+PANDOC ?= $(CE) exec $(CN) pandoc
 
 ## Source files
 ## (Adjust to your needs. Order of markdown files in $(SRC) matters!)
@@ -93,17 +96,17 @@ container:
 		--detach \
 		--env HOME="/pandoc_slides" \
 		--interactive \
-		--name pandoc-slides \
+		--name $(CN) \
 		--user $(UID):$(GID) \
 		$(optional_flags) \
 		--volume "$(WORKDIR)":/pandoc_slides$(remap) $(OCI)
-	$(CE) exec -u 0 -w /tmp pandoc-slides sh -c 'curl -sSf $$JAVA_TRIGGER_URL | sh'
-	$(CE) exec -u 0 -w /tmp pandoc-slides dot -c
-	$(CE) exec -u 0 -w /tmp pandoc-slides python3 -m venv --system-site-packages /opt/imagine
-	$(CE) exec -u 0 -w /tmp pandoc-slides sh -c '/opt/imagine/bin/pip install \
+	$(CE) exec -u 0 -w /tmp $(CN) sh -c 'curl -sSf $$JAVA_TRIGGER_URL | sh'
+	$(CE) exec -u 0 -w /tmp $(CN) dot -c
+	$(CE) exec -u 0 -w /tmp $(CN) python3 -m venv --system-site-packages /opt/imagine
+	$(CE) exec -u 0 -w /tmp $(CN) sh -c '/opt/imagine/bin/pip install \
 		--no-cache-dir --disable-pip-version-check \
 		git+$$PANDOC_FILTERS_REPO@$$PANDOC_FILTERS_VERSION'
-	$(CE) exec -u 0 -w /tmp pandoc-slides sh -c '/opt/imagine/bin/pip install \
+	$(CE) exec -u 0 -w /tmp $(CN) sh -c '/opt/imagine/bin/pip install \
 		--no-cache-dir --disable-pip-version-check \
 		git+$$PANDOC_IMAGINE_REPO@$$PANDOC_IMAGINE_VERSION'
 
@@ -138,8 +141,8 @@ stop: *.pid
 
 ## Start container or advice to setup it
 containerstart:
-	@$(CE) start pandoc-slides \
-		|| (printf 'Error: no container `pandoc-slides` found, run `make container` before\n' && exit 1)
+	@$(CE) start $(CN) \
+		|| (printf 'Error: no container `%s` found, run `make container` before\n' $(CN) && exit 1)
 
 ## Upgrade "pandoc-slides" image and setup new container
 containerupgrade: containerclean imageclean container
@@ -155,8 +158,8 @@ distclean: clean
 
 ## Clean-up: Stop and remove "pandoc-slides" container
 containerclean:
-	$(CE) stop pandoc-slides || exit 0
-	$(CE) rm pandoc-slides || exit 0
+	$(CE) stop $(CN) || exit 0
+	$(CE) rm $(CN) || exit 0
 
 ## Clean-up: Remove "pandoc-slides" image
 imageclean:
