@@ -22,7 +22,7 @@ contents:
     - ttf-dejavu
 
 environment:
-  PATH: /usr/sbin:/sbin:/usr/bin:/bin
+  PATH: /opt/imagine/bin:/usr/sbin:/sbin:/usr/bin:/bin
   JAVA_TRIGGER_URL: |
     https://git.alpinelinux.org/aports/plain/community/java-common/java-common.trigger?h=3.17-stable
   PANDOC_FILTERS_REPO: https://github.com/jgm/pandocfilters.git
@@ -31,6 +31,8 @@ environment:
   PANDOC_IMAGINE_VERSION: cc96d54ff4df119182d60e0b51eb86ab9b5866b0
 
 work-dir: /pandoc_slides
+entrypoint:
+  command: /usr/bin/pandoc
 
 accounts:
   groups:
@@ -39,4 +41,5 @@ accounts:
   users:
     - username: nonroot
       uid: 65532
-  run-as: 0
+      gid: 65532
+  run-as: 65532

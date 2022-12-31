@@ -4,7 +4,7 @@
 
 ## pandoc-slides official image
 ## Verify its signature before run `make container` ;)
-OCI = ghcr.io/andros21/pandoc-slides:master
+OCI ?= ghcr.io/andros21/pandoc-slides:latest
 
 ## Container engine to use
 ## Choose between docker or podman (rootless)
@@ -89,14 +89,24 @@ example: containerstart example.html
 
 ## Create "pandoc-slides" container with pandoc
 container:
-	$(CE) create \
+	$(CE) run \
+		--detach \
 		--env HOME="/pandoc_slides" \
 		--interactive \
 		--name pandoc-slides \
-		--network none \
 		--user $(UID):$(GID) \
 		$(optional_flags) \
 		--volume "$(WORKDIR)":/pandoc_slides$(remap) $(OCI)
+	$(CE) exec -u 0 -w /tmp pandoc-slides sh -c 'curl -sSf $$JAVA_TRIGGER_URL | sh'
+	$(CE) exec -u 0 -w /tmp pandoc-slides dot -c
+	$(CE) exec -u 0 -w /tmp pandoc-slides python3 -m venv --system-site-packages /opt/imagine
+	$(CE) exec -u 0 -w /tmp pandoc-slides sh -c '/opt/imagine/bin/pip install \
+		--no-cache-dir --disable-pip-version-check \
+		git+$$PANDOC_FILTERS_REPO@$$PANDOC_FILTERS_VERSION'
+	$(CE) exec -u 0 -w /tmp pandoc-slides sh -c '/opt/imagine/bin/pip install \
+		--no-cache-dir --disable-pip-version-check \
+		git+$$PANDOC_IMAGINE_REPO@$$PANDOC_IMAGINE_VERSION'
+
 
 #######################
 ## Auxiliary targets ##

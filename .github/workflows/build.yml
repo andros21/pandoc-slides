@@ -2,11 +2,11 @@
 name: build pandoc-slides
 
 "on":
+  workflow_dispatch:
   push:
     branches:
       - master
     paths:
-      - apko/pandoc-slides.Dockerfile
       - apko/pandoc-slides.yaml
 
 env:
@@ -14,116 +14,54 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  changes:
-    name: filter changes
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      apko: ${{ steps.filter.outputs.apko }}
-      docker: ${{ steps.filter.outputs.docker }}
-    steps:
-      - name: checkout project
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
-      - uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50
-        id: filter
-        with:
-          filters: |
-            apko:
-              - 'apko/pandoc-slides.yaml'
-            docker:
-              - 'apko/pandoc-slides.Dockerfile'
   apko:
-    name: build pandoc-slides-apko
-    needs: changes
+    name: build pandoc-slides
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
       packages: write
     steps:
       - name: checkout project
         uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
+      - name: setup qemu
+        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18
       - name: apko snapshot
-        if: needs.changes.outputs.apko == 'true'
+        id: apko
         uses: chainguard-images/actions/apko-snapshot@main
         with:
           config: apko/pandoc-slides.yaml
           base-tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          target-tag: master-apko
+          target-tag: devel
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           token: ${{ secrets.GITHUB_TOKEN }}
           archs: x86_64,aarch64
-  docker:
-    name: build pandoc-slides
-    if: |
-      needs.changes.outputs.apko == 'true' || needs.changes.outputs.docker == 'true'
-    needs:
-      - changes
-      - apko
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
-    steps:
-      - name: checkout project
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b
-      - name: setup qemu
-        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18
-      - name: check cosign version
-        id: cosign-version
+      - name: smoke test
         run: |
-          LATEST=$(curl -sL https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r ".tag_name")
-          echo "cosign version: ${LATEST}"
-          echo "##[set-output name=latest;]${LATEST}"
-      - name: check cosign cache
-        uses: actions/cache@c1a5de879eb890d062a85ee0252d6036480b1fe2
-        id: cosign-cache
-        with:
-          path: ~/.cosign
-          key: ${{ runner.os }}-cosign-${{ steps.cosign-version.outputs.latest }}
-      - name: add cosign to path
-        if: steps.cosign-cache.outputs.cache-hit == 'true'
+          set -x
+          OCI=${{ steps.apko.outputs.digest }} make container
+          make example
+      - name: prepare html assets
         run: |
-          echo "HOME=$HOME" >> $GITHUB_ENV
-          echo "PATH=$PATH:$HOME/.cosign" >> $GITHUB_ENV
-      - name: install cosign
-        if: steps.cosign-cache.outputs.cache-hit != 'true'
-        uses: sigstore/cosign-installer@9becc617647dfa20ae7b1151972e9b3a2c338a2b
+          set -x
+          mkdir html/
+          mv example.html html/index.html
+          mv css/ pd-images/ media/ html/
+      - name: publish to gh-pages
+        uses: peaceiris/actions-gh-pages@de7ea6f8efb354206b205ef54722213d99067935
         with:
-          cosign-release: ${{ steps.cosign-version.outputs.latest }}
-      - name: setup qemu
-        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18
-      - name: setup docker buildx
-        uses: docker/setup-buildx-action@8c0edbc76e98fa90f69d9a2c020dcb50019dc325
-      - name: verify apko base image
-        env:
-          COSIGN_EXPERIMENTAL: 1
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: html/
+      - name: scan vulns
+        uses: chainguard-images/actions/vul-scans@main
+        with:
+          image: ${{ steps.apko.outputs.digest }}
+          RUN_SNYK: 'false'
+          DOCKER_LOGIN: 'false'
+      # tag latest only after tests and
+      # after attach sbom, signature, attestation
+      - name: tag pandoc-slides (latest)
         run: |
-          cosign verify ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:master-apko | jq
-      - name: login ghcr.io
-        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: extract metadata
-        id: meta
-        uses: docker/metadata-action@57396166ad8aefe6098280995947635806a0e6ea
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: build-and-push pandoc-slides
-        uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
-        with:
-          file: apko/pandoc-slides.Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64
-      - name: cosign pandoc-slides
-        env:
-          COSIGN_EXPERIMENTAL: 1
-        run: |
-          cosign sign ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:master
+          set -x
+          crane tag "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:devel" latest
