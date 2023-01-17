@@ -1,0 +1,70 @@
+---
+name: check pandoc-slides
+
+"on":
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 0'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  check:
+    name: check vulns
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: checkout project
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+      - name: apko build
+        uses: distroless/actions/apko-build@main
+        with:
+          config: apko/pandoc-slides.yaml
+          tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:vuln
+          use-docker-mediatypes: false
+          archs: x86_64,aarch64
+      - name: trivy scan
+        uses: aquasecurity/trivy-action@0105373003c89c494a3f436bd5efc57f3ac1ca20
+        with:
+          input: output.tar
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          exit-code: 0
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN'
+      - name: install cosign
+        uses: sigstore/cosign-installer@9becc617647dfa20ae7b1151972e9b3a2c338a2b
+      # compare cve from latest image (ghcr.io/andros21/pandoc-slides:latest)
+      # and job apko compiled image (output.tar)
+      #
+      # fail only if "now cve" > "latest cve" (trivy only)
+      - name: cve count
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          set -x
+          CVE_LOCAL_COUNT=-1
+          CVE_LATEST_COUNT=-1
+          CVE_LOCAL_COUNT=$(cat trivy-results.sarif \
+            | jq '.predicate.scanner.result.runs[0].results | length')
+          CVE_LATEST_COUNT=$(cosign download attestation ${REGISTRY}/${IMAGE_NAME}:latest \
+            | head -1 \
+            | jq -r .payload | base64 -d \
+            | jq '.predicate.scanner.result.runs[0].results | length')
+          # stdout job summary
+          echo "TRIVY_COUNT: ${CVE_LOCAL_COUNT} vs ${CVE_LATEST_COUNT}"
+          # markdown job summary
+          echo "### Check vulnerabilities summary" >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo "|        |  TRIVY  |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|:-------:|" >> $GITHUB_STEP_SUMMARY
+          echo "| local  |  ${CVE_LOCAL_COUNT}  |" >> $GITHUB_STEP_SUMMARY
+          echo "| latest |  ${CVE_LATEST_COUNT} |" >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          # job fail logic
+          [ ${CVE_LOCAL_COUNT[0]} -ge ${CVE_LATEST_COUNT[0]} ] && [ ${CVE_LOCAL_COUNT[1]} -ge ${CVE_LATEST_COUNT[1]} ] \
+            || echo "#### pandoc-slides image insecure :x:" >> $GITHUB_STEP_SUMMARY
+          echo "#### pandoc-slides image secure :heavy_check_mark:" >> $GITHUB_STEP_SUMMARY
