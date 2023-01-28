@@ -17,7 +17,9 @@ contents:
     - pandoc
     - plantuml
     - py3-matplotlib
+    - py3-pandas
     - py3-pip
+    - py3-yaml
     - terminus-font
     - ttf-dejavu
 
