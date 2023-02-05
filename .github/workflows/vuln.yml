@@ -27,7 +27,7 @@ jobs:
           use-docker-mediatypes: false
           archs: x86_64,aarch64
       - name: trivy scan
-        uses: aquasecurity/trivy-action@9ab158e8597f3b310480b9a69402b419bc03dbd5
+        uses: aquasecurity/trivy-action@cff3e9a7f62c41dd51975266d0ae235709e39c41
         with:
           input: output.tar
           format: 'sarif'
