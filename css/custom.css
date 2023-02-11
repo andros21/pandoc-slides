@@ -2,10 +2,30 @@
 
 /* add water-mark to background */
 .backgrounds {
-   background-position: bottom -100px left -100px;
    background-repeat: no-repeat;
    background-size: 25%;
    opacity: 0.2;
+}
+@media screen and (max-width: 500px) {
+   .backgrounds {
+      background-position: bottom -35px left -35px;
+      background-size: 33%;
+   }
+}
+@media screen and (min-width: 500px) and (max-width: 1000px) {
+   .backgrounds {
+      background-position: bottom -55px left -55px;
+   }
+}
+@media screen and (min-width: 1000px) and (max-width: 1500px) {
+   .backgrounds {
+      background-position: bottom -100px left -100px;
+   }
+}
+@media screen and (min-width: 1500px) and (max-width: 2000px) {
+   .backgrounds {
+      background-position: bottom -150px left -150px;
+   }
 }
 
 /* override revealjs background */
