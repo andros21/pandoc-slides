@@ -31,7 +31,7 @@ jobs:
           docker load < output.tar
       - name: grype scan
         id: grype-scan
-        uses: anchore/scan-action@ecfd0e98932e57ea8f68f29c4f418fc41a8194db
+        uses: anchore/scan-action@dafbc97d7259af88b61bd260f2fde565d0668a72
         with:
           image: output.tar
           fail-build: false
