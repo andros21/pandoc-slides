@@ -25,10 +25,7 @@ jobs:
           config: apko/pandoc-slides.yaml
           tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:vuln
           use-docker-mediatypes: false
-          archs: x86_64,aarch64
-      - name: docker load
-        run: |
-          docker load < output.tar
+          archs: x86_64
       - name: grype scan
         id: grype-scan
         uses: anchore/scan-action@dafbc97d7259af88b61bd260f2fde565d0668a72
