@@ -53,8 +53,6 @@ jobs:
       #
       # fail only if "now cve" > "latest cve"
       - name: cve count
-        env:
-          COSIGN_EXPERIMENTAL: 1
         run: |
           set -x
           CVE_LOCAL_COUNT=(-1 -1)
