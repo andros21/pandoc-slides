@@ -13,10 +13,10 @@ A Template for RevealJS Slides written in Markdown
 * [`make`](https://www.gnu.org/s/make/manual/make.html) command - build automation tool
 
 > **Warning:** supported platforms
->  * `aarch64-unknown-linux`
->  * `x86_64-unknown-linux`
->  * `aarch64-apple-darwin`
->  * `x86_64-apple-darwin`
+>  * `amd64-unknown-linux`
+>  * `arm64-unknown-linux`
+>  * `amd64-apple-darwin`
+>  * `arm64-apple-darwin`
 
 ### Usage
 
