@@ -36,7 +36,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          archs: x86_64,aarch64
+          archs: amd64,arm64
       - name: smoke test
         run: |
           set -x
@@ -53,15 +53,62 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: html/
-      - name: scan vulns
-        uses: chainguard-images/actions/vul-scans@main
-        with:
-          image: ${{ steps.apko.outputs.digest }}
-          RUN_SNYK: 'false'
-          DOCKER_LOGIN: 'false'
-      # tag latest only after tests and
-      # after attach sbom, signature, attestation
-      - name: tag pandoc-slides (latest)
+      - name: rumble docker config
         run: |
           set -x
+          export DOCKER_CONFIG="${PWD}/.docker-rumble"
+          mkdir -p "${DOCKER_CONFIG}"
+          echo '{}' > "${DOCKER_CONFIG}/config.json"
+          echo "${{ github.token }}" \
+             | docker login -u "${{ github.repository_owner }}" --password-stdin "https://ghcr.io"
+      - name: scan index trivy
+        uses: chainguard-dev/rumble@main
+        id: scan-index-trivy
+        with:
+          image: ${{ steps.apko.outputs.digest-index }}
+          scanner: trivy
+          docker-config: .docker-rumble
+      - name: scan index grype
+        uses: chainguard-dev/rumble@main
+        id: scan-index-grype
+        with:
+          image: ${{ steps.apko.outputs.digest-index }}
+          scanner: grype
+          docker-config: .docker-rumble
+      - name: scan amd64 trivy
+        uses: chainguard-dev/rumble@main
+        id: scan-amd64-trivy
+        if: steps.apko.outputs.digest-amd64 != ''
+        with:
+          image: ${{ steps.apko.outputs.digest-amd64 }}
+          scanner: trivy
+          docker-config: .docker-rumble
+      - name: scan amd64 grype
+        uses: chainguard-dev/rumble@main
+        id: scan-amd64-grype
+        if: steps.apko.outputs.digest-amd64 != ''
+        with:
+          image: ${{ steps.apko.outputs.digest-amd64 }}
+          scanner: grype
+          docker-config: .docker-rumble
+      - name: scan arm64 trivy
+        uses: chainguard-dev/rumble@main
+        id: scan-arm64-trivy
+        if: steps.apko.outputs.digest-arm64 != ''
+        with:
+          image: ${{ steps.apko.outputs.digest-arm64 }}
+          scanner: trivy
+          docker-config: .docker-rumble
+      - name: scan arm64 grype
+        uses: chainguard-dev/rumble@main
+        id: scan-arm64-grype
+        if: steps.apko.outputs.digest-arm64 != ''
+        with:
+          image: ${{ steps.apko.outputs.digest-arm64 }}
+          scanner: grype
+          docker-config: .docker-rumble
+      # tag latest only after tests and
+      # after attach signature, vuln attestation
+      - name: tag pandoc-slides (latest)
+        run: |
           crane tag "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:devel" latest
