@@ -1,9 +1,9 @@
+---
 # pandoc-slides.yaml
 # ==================
 # pandoc-slides apko base image
 # -----------------------------
 
----
 contents:
   repositories:
     - https://dl-cdn.alpinelinux.org/alpine/v3.17/main
@@ -45,3 +45,7 @@ accounts:
       uid: 65532
       gid: 65532
   run-as: 65532
+
+archs:
+  - amd64
+  - arm64

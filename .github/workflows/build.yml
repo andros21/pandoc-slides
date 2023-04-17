@@ -36,7 +36,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          archs: amd64,arm64
       - name: smoke test
         run: |
           set -x
