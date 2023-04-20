@@ -1,0 +1,39 @@
+---
+name: e2e
+
+"on":
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 0'
+
+permissions: {}
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  OICD: https://token.actions.githubusercontent.com
+  ID: https://github.com/${{ github.repository }}/.github/workflows/build.yml@refs/heads/master
+
+jobs:
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - name: install cosign
+        uses: sigstore/cosign-installer@c3667d99424e7e6047999fb6246c0da843953c65
+      - name: verify sign
+        run: |
+          set -x
+          cosign verify \
+            --certificate-identity "${{ env.ID}}" \
+            --certificate-oidc-issuer "${{ env.OICD }}" \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" | jq .
+      - name: verify vuln
+        run: |
+          set -x
+          cosign verify-attestation \
+            --certificate-identity "${{ env.ID}}" \
+            --certificate-oidc-issuer "${{ env.OICD }}" \
+            --type vuln \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" \
+            | jq -r .payload | base64 -d | jq .
