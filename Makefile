@@ -9,13 +9,20 @@ OCI ?= ghcr.io/andros21/pandoc-slides:latest
 ## Container name (from working dir)
 CN := $(shell basename $$PWD)
 
+## User id and group id using id command
+## In case this doesn't work, set your UID and GID
+UID ?= $(shell id -u)
+GID ?= $(shell id -g)
+
 ## Container engine to use
 ## Choose between docker or podman (rootless)
 ## (Defaults to docker)
-CE := $(shell basename `which docker 2>/dev/null ||\
+CE ?= $(shell basename `which docker 2>/dev/null ||\
                         which podman 2>/dev/null || echo docker`)
-docker_flags =
-podman_flags = --userns keep-id
+# User container as current user
+docker_flags = --user $(UID):$(GID)
+# Map current user as container user
+podman_flags = --userns keep-id:uid=65532,gid=65532
 ifeq ($(CE), podman)
 	optional_flags=$(podman_flags)
 else
@@ -25,11 +32,6 @@ endif
 ## Working directory
 ## In case this doesn't work, set the path manually (use absolute paths).
 WORKDIR = $(CURDIR)
-
-## User id and group id using stat command
-## In case this doesn't work, set your UID and GID
-UID := $(shell id -u)
-GID := $(shell id -g)
 
 ## Check OS (supported Linux, Darwin aka Mac)
 ## Disable selinux volume mount remap on Mac
@@ -97,7 +99,6 @@ container:
 		--env HOME="/pandoc_slides" \
 		--interactive \
 		--name $(CN) \
-		--user $(UID):$(GID) \
 		$(optional_flags) \
 		--volume "$(WORKDIR)":/pandoc_slides$(remap) $(OCI)
 	$(CE) exec -u 0 -w /tmp $(CN) sh -c 'curl -sSf $$JAVA_TRIGGER_URL | sh'
