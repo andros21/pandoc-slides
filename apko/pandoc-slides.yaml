@@ -30,7 +30,7 @@ environment:
   PANDOC_FILTERS_REPO: https://github.com/jgm/pandocfilters.git
   PANDOC_FILTERS_VERSION: 1beda668a764c8aa8e1c4e0cebce4323d4181f92
   PANDOC_IMAGINE_REPO: https://github.com/andros21/imagine.git
-  PANDOC_IMAGINE_VERSION: e28c1c5acbf9ff6333571b7b3a8bebd761621e78
+  PANDOC_IMAGINE_VERSION: 5e9e5d10b6cf40b6b5ffed4ec9d44f53b35de149
 
 work-dir: /pandoc_slides
 entrypoint:
