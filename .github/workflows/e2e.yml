@@ -28,12 +28,21 @@ jobs:
             --certificate-identity "${{ env.ID}}" \
             --certificate-oidc-issuer "${{ env.OICD }}" \
             "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" | jq .
-      - name: verify vuln
+      - name: verify sbom
         run: |
           set -x
           cosign verify-attestation \
             --certificate-identity "${{ env.ID}}" \
             --certificate-oidc-issuer "${{ env.OICD }}" \
-            --type vuln \
+            --type spdx \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" \
+            | jq -r .payload | base64 -d | jq .
+      - name: verify slsa
+        run: |
+          set -x
+          cosign verify-attestation \
+            --certificate-identity "${{ env.ID}}" \
+            --certificate-oidc-issuer "${{ env.OICD }}" \
+            --type slsaprovenance \
             "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" \
             | jq -r .payload | base64 -d | jq .
