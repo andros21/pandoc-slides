@@ -18,19 +18,20 @@ jobs:
     name: build pandoc-slides
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       id-token: write
       packages: write
       actions: read
+    outputs:
+      digest: ${{ steps.apko.outputs.digest }}
     steps:
       - name: checkout project
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
-      - name: setup qemu
-        uses: docker/setup-qemu-action@2b82ce82d56a2a04d2637cd93a637ae1b359c0a7
       - name: apko snapshot
         id: apko
         uses: chainguard-images/actions/apko-snapshot@main
         with:
+          apko-image: ghcr.io/wolfi-dev/apko:latest@sha256:66443587f3f2f5d9262bcfff35a2f26e1615e90c4b9dbef8ae295cc9c1daeb48   # something broken in latest: no SBOM local copy after push
           config: apko/pandoc-slides.yaml
           base-tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           target-tag: devel
@@ -39,78 +40,63 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           sbom-attest: true
           slsa-attest: true
+  smoke:
+    name: test pandoc-slides
+    needs: apko
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - ubuntu-latest
+        ce:
+          - docker
+          - podman
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: checkout project
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
       - name: smoke test
         run: |
           set -x
-          OCI=${{ steps.apko.outputs.digest }} make container
-          make example
+          CE=${{ matrix.ce }} OCI=${{ needs.apko.outputs.digest }} make container
+          CE=${{ matrix.ce }} make example
       - name: prepare html assets
+        if: ${{ matrix.ce }} == 'docker'
         run: |
           set -x
           mkdir html/
           mv example.html html/index.html
           mv css/ pd-images/ media/ html/
+      - uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        if: ${{ matrix.ce }} == 'docker'
+        with:
+          name: pandoc-slides-example
+          path: html/
+          if-no-files-found: error
+          retention-days: 1
+  publish:
+    name: publish pandoc-slides
+    needs: smoke
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+        with:
+          name: pandoc-slides-example
+          path: html/
       - name: publish to gh-pages
         uses: peaceiris/actions-gh-pages@373f7f263a76c20808c831209c920827a82a2847
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: html/
-      - name: rumble docker config
-        run: |
-          set -x
-          export DOCKER_CONFIG="${PWD}/.docker-rumble"
-          mkdir -p "${DOCKER_CONFIG}"
-          echo '{}' > "${DOCKER_CONFIG}/config.json"
-          echo "${{ github.token }}" \
-             | docker login -u "${{ github.repository_owner }}" --password-stdin "https://ghcr.io"
-      - name: scan index trivy
-        uses: chainguard-dev/rumble@main
-        id: scan-index-trivy
-        with:
-          image: ${{ steps.apko.outputs.digest-index }}
-          scanner: trivy
-          docker-config: .docker-rumble
-      - name: scan index grype
-        uses: chainguard-dev/rumble@main
-        id: scan-index-grype
-        with:
-          image: ${{ steps.apko.outputs.digest-index }}
-          scanner: grype
-          docker-config: .docker-rumble
-      - name: scan amd64 trivy
-        uses: chainguard-dev/rumble@main
-        id: scan-amd64-trivy
-        if: steps.apko.outputs.digest-amd64 != ''
-        with:
-          image: ${{ steps.apko.outputs.digest-amd64 }}
-          scanner: trivy
-          docker-config: .docker-rumble
-      - name: scan amd64 grype
-        uses: chainguard-dev/rumble@main
-        id: scan-amd64-grype
-        if: steps.apko.outputs.digest-amd64 != ''
-        with:
-          image: ${{ steps.apko.outputs.digest-amd64 }}
-          scanner: grype
-          docker-config: .docker-rumble
-      - name: scan arm64 trivy
-        uses: chainguard-dev/rumble@main
-        id: scan-arm64-trivy
-        if: steps.apko.outputs.digest-arm64 != ''
-        with:
-          image: ${{ steps.apko.outputs.digest-arm64 }}
-          scanner: trivy
-          docker-config: .docker-rumble
-      - name: scan arm64 grype
-        uses: chainguard-dev/rumble@main
-        id: scan-arm64-grype
-        if: steps.apko.outputs.digest-arm64 != ''
-        with:
-          image: ${{ steps.apko.outputs.digest-arm64 }}
-          scanner: grype
-          docker-config: .docker-rumble
-      # tag latest only after tests and
-      # after attach signature, vuln attestation
+          keep_files: true
+      - name: install crane
+        uses: imjasonh/setup-crane@00c9e93efa4e1138c9a7a5c594acd6c75a2fbf0c
+      # tag latest only after smoke tests
       - name: tag pandoc-slides (latest)
         run: |
           crane tag "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:devel" latest
