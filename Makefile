@@ -19,12 +19,21 @@ GID ?= $(shell id -g)
 ## (Defaults to docker)
 CE ?= $(shell basename `which docker 2>/dev/null ||\
                         which podman 2>/dev/null || echo docker`)
+## Check podman version
+ifeq ($(CE), podman)
+	PODMAN_VERSION = $(shell podman --version | cut -d' ' -f 3 | cut -d'.' -f 1)
+endif
 # User container as current user
 docker_flags = --user $(UID):$(GID)
 # Map current user as container user
-podman_flags = --userns keep-id:uid=65532,gid=65532
+podman_flags_4 = --userns keep-id:uid=65532,gid=65532
+podman_flags   = $(docker_flags) --userns keep-id
 ifeq ($(CE), podman)
+ifeq ($(PODMAN_VERSION), 4)
+	optional_flags=$(podman_flags_4)
+else
 	optional_flags=$(podman_flags)
+endif
 else
 	optional_flags=$(docker_flags)
 endif
