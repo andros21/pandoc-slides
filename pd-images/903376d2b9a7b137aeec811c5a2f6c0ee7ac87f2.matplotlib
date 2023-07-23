@@ -1,0 +1,18 @@
+
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(0, 10)
+
+fig, ax = plt.subplots()
+for k in np.arange(1, 4):
+   V = np.exp(-k*x)
+   ax.plot(x, V, label=f"$V(x)=-{k}x$")
+
+ax.set_xlabel('$x$')
+ax.set_ylabel('$p(x)$')
+ax.legend()
+
+fig.savefig(sys.argv[-1], transparent=True)
+            
