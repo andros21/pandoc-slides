@@ -6,13 +6,14 @@
 
 contents:
   repositories:
-    - https://dl-cdn.alpinelinux.org/alpine/v3.17/main
-    - https://dl-cdn.alpinelinux.org/alpine/v3.17/community
+    - https://dl-cdn.alpinelinux.org/alpine/v3.18/main
+    - https://dl-cdn.alpinelinux.org/alpine/v3.18/community
   packages:
     - ca-certificates-bundle
     - curl
     - font-noto
     - git
+    - gnuplot
     - graphviz
     - pandoc
     - plantuml
@@ -26,11 +27,9 @@ contents:
 environment:
   PATH: /opt/imagine/bin:/usr/sbin:/sbin:/usr/bin:/bin
   JAVA_TRIGGER_URL: |
-    https://git.alpinelinux.org/aports/plain/community/java-common/java-common.trigger?h=3.17-stable
-  PANDOC_FILTERS_REPO: https://github.com/jgm/pandocfilters.git
-  PANDOC_FILTERS_VERSION: 1beda668a764c8aa8e1c4e0cebce4323d4181f92
+    https://git.alpinelinux.org/aports/plain/community/java-common/java-common.trigger?h=3.18-stable
   PANDOC_IMAGINE_REPO: https://github.com/andros21/imagine.git
-  PANDOC_IMAGINE_VERSION: 5e9e5d10b6cf40b6b5ffed4ec9d44f53b35de149
+  PANDOC_IMAGINE_VERSION: c40ed7da61aa516afcf8ed6756703db214975b9a
 
 work-dir: /pandoc_slides
 entrypoint:

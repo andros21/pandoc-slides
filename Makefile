@@ -115,9 +115,6 @@ container:
 	$(CE) exec -u 0 -w /tmp $(CN) python3 -m venv --system-site-packages /opt/imagine
 	$(CE) exec -u 0 -w /tmp $(CN) sh -c '/opt/imagine/bin/pip install \
 		--no-cache-dir --disable-pip-version-check \
-		git+$$PANDOC_FILTERS_REPO@$$PANDOC_FILTERS_VERSION'
-	$(CE) exec -u 0 -w /tmp $(CN) sh -c '/opt/imagine/bin/pip install \
-		--no-cache-dir --disable-pip-version-check \
 		git+$$PANDOC_IMAGINE_REPO@$$PANDOC_IMAGINE_VERSION'
 
 
