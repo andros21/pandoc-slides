@@ -93,7 +93,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: html/
-          keep_files: true
       - name: install crane
         uses: imjasonh/setup-crane@00c9e93efa4e1138c9a7a5c594acd6c75a2fbf0c
       # tag latest only after smoke tests
