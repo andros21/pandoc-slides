@@ -14,5 +14,5 @@ ax.set_xlabel('$x$')
 ax.set_ylabel('$p(x)$')
 ax.legend()
 
-fig.savefig(sys.argv[-1], transparent=True)
+fig.savefig(sys.argv[-1])
             
