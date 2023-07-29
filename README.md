@@ -16,9 +16,8 @@ A Template for RevealJS Slides written in Markdown
     * [`podman`](https://podman.io/) - a daemonless container engine
 * [`make`](https://www.gnu.org/s/make/manual/make.html) command - build automation tool
 
-> **Warning**
->
-> supported platforms:
+> [!WARNING]\
+> supported platforms
 >  * `amd64-unknown-linux`
 >  * `arm64-unknown-linux`
 >  * `amd64-apple-darwin`
@@ -30,12 +29,10 @@ A Template for RevealJS Slides written in Markdown
 * Adjust optional definitions in [`metadata.yaml`](metadata.yaml) to your needs
 * Fill the markdown file [`md/slides.md`](md/slides.md) with your content
 
-    > **Note**
-    >
+    > [!NOTE]\
     > you will find some help regarding the use of Markdown inside it
 
-    > **Warning**
-    >
+    > [!WARNING]\
     > do not forget to reflect the changed filenames in [`Makefile`](Makefile)
 
 * Create `pandoc-slides` container with everything you need to build slides: `make container`
@@ -46,13 +43,11 @@ A Template for RevealJS Slides written in Markdown
     * to remove container: `make containerclean`
     * to remove image: `make imageclean`
 
-> **Note**
->
+> [!NOTE]\
 > the above mentioned files constitute a minimal working example,\
 > to start your own project, simply clone this project and customize the files mentioned above
 
-> **Note**
->
+> [!NOTE]\
 > to upgrade to latest `pandoc-slides` image `make containerupgrade`
 
 ### Pandoc filters
@@ -64,18 +59,15 @@ Inside markdown source is possible to insert code-blocks of these available tool
 
 thanks to [`pandocfilters`](https://github.com/jgm/pandocfilters) and [`imagine`](https://github.com/andros21/imagine) are rendered as image inside final html
 
-> **Note**
->
+> [!NOTE]\
 > there is a special section inside [`example/slides.md`](example/slides.md)\
 > for better understanding how it work and how to use it
 
-> **Note**
->
+> [!NOTE]\
 > `imagine` global configuration inside [`metadata.yaml`](metadata.yaml) or\
 > config per block inside code-block header
 
-> **Note**
->
+> [!NOTE]\
 > `matplotlib` global configuration inside [`matplotlibrc`](matplotlibrc) loaded at startup
 
 ### Acknowledgements
