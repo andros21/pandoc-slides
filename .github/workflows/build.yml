@@ -31,7 +31,6 @@ jobs:
         id: apko
         uses: chainguard-images/actions/apko-snapshot@main
         with:
-          apko-image: ghcr.io/wolfi-dev/apko:latest@sha256:66443587f3f2f5d9262bcfff35a2f26e1615e90c4b9dbef8ae295cc9c1daeb48   # something broken in latest: no SBOM local copy after push
           config: apko/pandoc-slides.yaml
           base-tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           target-tag: devel
