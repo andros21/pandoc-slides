@@ -63,14 +63,14 @@ jobs:
           CE=${{ matrix.ce }} OCI=${{ needs.apko.outputs.digest }} make container
           CE=${{ matrix.ce }} make example
       - name: prepare html assets
-        if: ${{ matrix.ce }} == 'docker'
+        if: matrix.ce == 'docker'
         run: |
           set -x
           mkdir html/
           mv example.html html/index.html
           mv css/ pd-images/ media/ html/
       - uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
-        if: ${{ matrix.ce }} == 'docker'
+        if: matrix.ce == 'docker'
         with:
           name: pandoc-slides-example
           path: html/
