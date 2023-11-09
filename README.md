@@ -3,7 +3,7 @@
 </a><a href="https://github.com/andros21/pandoc-slides/actions/workflows/e2e.yml">
     <img src="https://img.shields.io/github/actions/workflow/status/andros21/pandoc-slides/e2e.yml?label=e2e&logo=github" alt="e2e">
 </a><a href="https://github.com/andros21/pandoc-slides/actions/workflows/e2e.yml">
-    <img src="https://slsa.dev/images/gh-badge-level3.svg" alt="slsa 3">
+    <img src="https://slsa.dev/images/gh-badge-level2.svg" alt="slsa 2">
 </a>
 </h1>
 
