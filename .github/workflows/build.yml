@@ -31,7 +31,6 @@ jobs:
         id: apko
         uses: chainguard-images/actions/apko-snapshot@main
         with:
-          apko-image: ghcr.io/wolfi-dev/apko:latest@sha256:e1074b02b7487954c212c5611646add0c5cf85476eb3e52fcc4b224d58d5d22d   # unknown flags in latest after apko flags cleanup
           config: apko/pandoc-slides.yaml
           base-tag: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           target-tag: devel
