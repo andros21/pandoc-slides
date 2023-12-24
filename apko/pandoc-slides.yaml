@@ -6,8 +6,8 @@
 
 contents:
   repositories:
-    - https://dl-cdn.alpinelinux.org/alpine/v3.18/main
-    - https://dl-cdn.alpinelinux.org/alpine/v3.18/community
+    - https://dl-cdn.alpinelinux.org/alpine/v3.19/main
+    - https://dl-cdn.alpinelinux.org/alpine/v3.19/community
   packages:
     - ca-certificates-bundle
     - curl
