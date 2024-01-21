@@ -68,7 +68,7 @@ jobs:
           mkdir html/
           mv example.html html/index.html
           mv css/ pd-images/ media/ html/
-      - uses: actions/upload-artifact@1eb3cb2b3e0f29609092a73eb033bb759a334595
+      - uses: actions/upload-artifact@694cdabd8bdb0f10b2cea11669e1bf5453eed0a6
         if: matrix.ce == 'docker'
         with:
           name: pandoc-slides-example
