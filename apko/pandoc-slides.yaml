@@ -29,7 +29,7 @@ environment:
   JAVA_TRIGGER_URL: |
     https://git.alpinelinux.org/aports/plain/community/java-common/java-common.trigger?h=3.18-stable
   PANDOC_IMAGINE_REPO: https://github.com/andros21/imagine.git
-  PANDOC_IMAGINE_VERSION: d299486d029fd2c0ef6842dabe22d610d5c45982
+  PANDOC_IMAGINE_VERSION: 6dc357342533727bc1f1d0b22f287a99a22acd62
 
 work-dir: /pandoc_slides
 entrypoint:
