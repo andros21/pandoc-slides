@@ -72,5 +72,5 @@ div.sourceCode {
 
 /* enable code scroll */
 .reveal .sourceCode {
-   overflow: scroll;
+   overflow: auto;
 }
